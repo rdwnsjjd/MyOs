@@ -57,7 +57,7 @@ ENTRY:
                 MOV     CR0, EAX
                 JMP     GDT_CODE_SEG:init_pm
 
-%include        "head.asm"
+%include        "head.S"
 
 [BITS   32]
 init_pm:
@@ -135,3 +135,10 @@ DRIVE_NUM:              DW 0x0000
 
 TIMES 510 - ($ -$$) 	DB 0x0
 			DW 0xAA55
+
+TIMES 512               db 00
+TIMES 512               db 00
+TIMES 512               db 00
+TIMES 512               db 00
+TIMES 512               db 00
+TIMES 512               db 00

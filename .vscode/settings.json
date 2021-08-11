@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "panic.h": "c",
+        "basic_defs.h": "c",
+        "string.h": "c",
+        "gdt.h": "c",
+        "irqs.h": "c"
+    }
+}

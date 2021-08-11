@@ -5,40 +5,23 @@ AS	= nasm
 CT  = cat
 QM	= qemu-system-i386
 
-KernelO		= kernel/kernel.o
-KernelB		= kernel/main.bin
-BootO		= boot/boot.o
-BootB		= boot/boot.bin
-Stage2O		= boot/stage2.o
-KernelImg 	= os.bin
+KernelB		= build/kernel/bin/main.bin
+BootB		= build/boot/bin/boot.bin
+KernelImg 	= build/img/os.bin
 
 all: img run
 
-# withoutlinking: dd run
-
-
-
 img: booto kernelo
 	@echo "[   LNK   ]    Proparing OS ..."
+	@mkdir -p build/img
 	@${CT} ${BootB} ${KernelB} > ${KernelImg}
 	@echo "[   MSG   ]    Done!"
-
-# dd: bootb kernelb
-# 	@echo "Proparing kernel (Binary file)..."
-# 	@${DD} if=${KernelImg} of=${BootB}  seek=1
-# 	@echo "Done!"
 
 kernelo:
 	@ cd kernel && make
 
-# kernelb:
-# 	@ cd kernel && make kernelo && make link
-
 booto:
 	@ cd boot && make
-
-# bootb:
-# 	@ cd boot && make bootb
 
 run:
 	@echo "[   RUN   ]    Booting OS ..."
@@ -46,7 +29,8 @@ run:
 
 clean: cleank cleanb
 	@echo "[   CLN   ]    Cleaning kerenl ..."
-	@rm ${KernelImg}
+	@rm -f ${KernelImg}
+	@rm -rf build
 	@echo "[   MSG   ]    Done!"
 
 cleank:

@@ -119,7 +119,7 @@ DISK_IO:
                 MOV     AL, DH          ; Sector count
                 MOV     CH, 0x00        ; Cylinder number
                 MOV     DH, 0x00        ; Track number
-                MOV     CL, 0x02        ; Sector number
+                MOV     CL, 0x08        ; Sector number
                 INT     0x13
 
                 JC      DISK_ERR
@@ -198,3 +198,4 @@ CLEAR_SCREEN:
 ;                 MOV     SI, 1
 ;                 CALL    B_PRINT
 ; %ENDMACRO
+  

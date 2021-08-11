@@ -2,7 +2,9 @@
 #define __BASIC_DEFS_H
 
 #define loop            while(1)
-#define INLINE          static inline
+#define __INLINE__      static inline
+
+#define __PACKED__      __attribute((packed))
 
 #define EOS             '\000'
 

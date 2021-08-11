@@ -1,9 +1,15 @@
-#ifndef __VGA_DEFS_H
-#define __VGA_DEFS_H
+#ifndef __TTY_H
+#define __TTY_H
+
+#include <defs/basic_defs.h>
+#include <basic_types.h>
+#include <drivers/ports.h>
 
 #define VIDEO_MEM       0xB8000
 #define VGA_WIDTH       80
 #define VGA_HEIGHT      25
+#define REG_SCREEN_CTRL 0x3d4
+#define REG_SCREEN_DATA 0x3d5
 
 typedef enum {
 	VGA_BLACK,
@@ -25,5 +31,12 @@ typedef enum {
 }
 VideoMemColor;
 
+Void tty_init(
+    VideoMemColor fg,
+    VideoMemColor bg
+);
 
-#endif // __VGA_DEFS_H
+
+Void tty_print(Bytes str);
+
+#endif // __TTY_H

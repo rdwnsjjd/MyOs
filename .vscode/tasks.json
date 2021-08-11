@@ -6,10 +6,16 @@
             "command": "/usr/bin/gcc",
             "args": [
                 "-g",
-                "-I/home/rdwn/Documents/repo_1/OS1/inc",
+                "-I/home/rdwn/Documents/repo_1/myos",
+                "-I/home/rdwn/Documents/repo_1/myos/inc",
+                "-I/home/rdwn/Documents/repo_1/myos/lib",
+                "-I/home/rdwn/Documents/repo_1/myos/inc/libk",
+                "-I/home/rdwn/Documents/repo_1/myos/kerenel/int",
                 "${file}",
+                // "/home/rdwn/Documents/repo_1/myos/build/boot/obj/stage2.o",
                 "-o",
-                "${fileDirname}/${fileBasenameNoExtension}"
+                "${fileDirname}/${fileBasenameNoExtension}",
+                "-masm=intel"
             ],
             "options": {
                 "cwd": "${fileDirname}"

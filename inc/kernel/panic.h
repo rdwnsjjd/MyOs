@@ -4,10 +4,9 @@
 #include <kernel/tty.h>
 
 Void panic(
-    Terminal* tty,
     Bytes    msg
 ) {
-    tty_print(tty, msg);
+    tty_print(msg);
 
     __asm__ volatile ("hlt");
 }
