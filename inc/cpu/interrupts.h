@@ -40,7 +40,7 @@ extern void isr29();
 extern void isr30();
 extern void isr31();
 
-char *exception_messages[] = {
+Bytes exception_messages[] = {
     "Division By Zero",
     "Debug",
     "Non Maskable Interrupt",
@@ -79,14 +79,20 @@ char *exception_messages[] = {
 };
 
 
-void isr_handler(Cpu cpu) {
+Void isr_handler(UInt32 eax, Cpu cpu,  UInt32 interrupt) {
 
-   // UInt8 num = 0;
-   // __asm__ volatile ("mov %%ax, %%dx" :  "=d" (num));
+   if (interrupt == 0) {
+       panic("A Division By Zero occurred!");
+   }
 
-   tty_print("An interrupt received: Interrupt handle not implimented yet!\n");
-   tty_print(exception_messages[cpu.int_no]);
-   tty_print("\n");
+   if (interrupt == 8) {
+       panic("A Double fault!");
+   }
+
+   tty_print("An interrupt received (Interrupt handle not implimented yet!)\n--");
+   tty_print(exception_messages[interrupt]);
+   tty_print("--\n");
+   
 }
 
 #endif // __INTERRUPTS_H

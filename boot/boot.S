@@ -109,8 +109,8 @@ GDT_DESC:
                         DW GDT_END - GDT_START  - 1
                         DD GDT_START
 
-GDT_CODE_SEG    EQU GDT_CODE - GDT_START
-GDT_DATA_SEG    EQU GDT_DATA - GDT_START
+GDT_CODE_SEG    EQU     GDT_CODE - GDT_START
+GDT_DATA_SEG    EQU     GDT_DATA - GDT_START
 
 ; ; ----------------------------------------------------------------------------------------------
 ; ;                                 -- End of GDT structure --
@@ -142,3 +142,4 @@ TIMES 512               db 00
 TIMES 512               db 00
 TIMES 512               db 00
 TIMES 512               db 00
+

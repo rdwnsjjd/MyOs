@@ -5,7 +5,7 @@ LOAD_STAGE2:
 
                 MOV     AH, 0x02                                ; BIOS read sector routine
 
-                MOV     DH, 15
+                MOV     DH, 0x30
                 MOV     DL, [DRIVE_NUM]
                 ; MOV     AX, 0x900                          ; Setting ES register to boot segment to use it inorder to 
                 ; MOV     ES, AX                                ; accessing it's content after loading data on it

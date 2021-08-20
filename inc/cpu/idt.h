@@ -34,8 +34,8 @@ __INLINE__ Void idt_set_gate(
     UInt16  selector,
     UInt8   flags
 ) {
-    idt[idx].base_low  = (base & 0xFFFF);
-    idt[idx].base_high = (base >> 16) & 0xFFFF;
+    idt[idx].base_low  = LOW(base);
+    idt[idx].base_high = HIGH(base);
 
     idt[idx].selector = selector;
     idt[idx].flags    = flags;
@@ -43,7 +43,7 @@ __INLINE__ Void idt_set_gate(
 }
 
 
-__INLINE__ IDTDesc* idt_init() {
+__INLINE__ Void idt_init() {
 
     IDTGate idt[256] = {0};
 
@@ -81,16 +81,16 @@ __INLINE__ IDTDesc* idt_init() {
     idt_set_gate(idt, 31, (UInt32)isr31 , 0x08, 0x8E);
 
     /*Remaping irq table*/
-    out_bin(0x20, 0x11);
-    out_bin(0xA0, 0x11);
-    out_bin(0x21, 0x20);
-    out_bin(0xA1, 0x28);
-    out_bin(0x21, 0x04);
-    out_bin(0xA1, 0x02);
-    out_bin(0x21, 0x01);
-    out_bin(0xA1, 0x01);
-    out_bin(0x21, 0x0);
-    out_bin(0xA1, 0x0);
+    outb(0x20, 0x11);
+    outb(0xA0, 0x11);
+    outb(0x21, 0x20);
+    outb(0xA1, 0x28);
+    outb(0x21, 0x04);
+    outb(0xA1, 0x02);
+    outb(0x21, 0x01);
+    outb(0xA1, 0x01);
+    outb(0x21, 0x0);
+    outb(0xA1, 0x0);
 
     /*Setting idt gates for irqs*/
     idt_set_gate(idt, 32, (UInt32)irq0 , 0x08, 0x8E);
@@ -109,26 +109,15 @@ __INLINE__ IDTDesc* idt_init() {
     idt_set_gate(idt, 45, (UInt32)irq13 , 0x08, 0x8E);
     idt_set_gate(idt, 46, (UInt32)irq14 , 0x08, 0x8E);
     idt_set_gate(idt, 47, (UInt32)irq15 , 0x08, 0x8E);
-    // idt_set_gate(idt, 48, (UInt32)irq6 , 0x08, 0x8E);
-    // idt_set_gate(idt, 49, (UInt32)irq4 , 0x08, 0x8E);
-    // idt_set_gate(idt, 50, (UInt32)irq8 , 0x08, 0x8E);
-    // idt_set_gate(idt, 51, (UInt32)irq9 , 0x08, 0x8E);
-    // idt_set_gate(idt, 52, (UInt32)isr30 , 0x08, 0x8E);
-    // idt_set_gate(idt, 52, (UInt32)isr31 , 0x08, 0x8E);
 
     IDTDesc idt_desc = {
-        .size = sizeof(idt),
+        .size = sizeof(idt) - 1,
         .addr = (UInt32)&idt
     };
 
     __asm__ __volatile__("lidt [%0]": :"r" (&idt_desc));
 
-    return &idt_desc;
+    return;
 }
-
-
-// __INLINE__ Void idt_install(IDTDesc* idt_desc) {
-//     __asm__ __volatile__("lidtl (%0)" : : "r" (idt_desc));
-// }
 
 #endif // __IDT_H

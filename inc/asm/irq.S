@@ -1,7 +1,7 @@
 %macro IRQ 2
-[GLOBAL IRQ%1]
+[GLOBAL irq%1]
 
-IRQ%1:
+irq%1:
     cli
     push byte 0
     push byte %2
@@ -29,25 +29,28 @@ IRQ 15, 47
 [extern irq_handler]
 
 irq_common_stub:
-                        pusha
-                        mov     ax, ds
-                        push    eax
+                        pusha 
 
-                        mov     ax, 0x10
-                        mov     ds, ax
-                        mov     es, ax
-                        mov     fs, ax
-                        mov     gs, ax
-                        
-                        call    irq_handler
+                        mov ax, ds
+                        push eax
 
-                        pop     ebx
-                        mov     ds, bx
-                        mov     es, bx
-                        mov     fs, ax
-                        mov     gs, ax
+                        mov ax, 0x10
+                        mov ds, ax
+                        mov es, ax
+                        mov fs, ax
+                        mov gs, ax
+
+                        cld
+                        call irq_handler ; Different than the ISR code
+
+                        pop ebx
+
+                        mov ds, bx
+                        mov es, bx
+                        mov fs, bx
+                        mov gs, bx
 
                         popa
-                        add     esp, 8
-                        sti
-                        iret
+
+                        add esp, 8
+                        iret 

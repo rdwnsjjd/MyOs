@@ -17,50 +17,69 @@ HEADER 		+= -I${THIS_DIR}/lib/
 HEADER 		+= -I${THIS_DIR}/inc/libk
 
 SRCS		:= ${THIS_DIR}/lib/kernel/tty.c
-# SRCS		+= ${THIS_DIR}/lib/io/printk.c
-
 SRCO		:= ${THIS_DIR}/build/lib/obj/tty.o
-# SRCO		:= ${THIS_DIR}/build/lib/obj/printk.o
+SIOS		:= ${THIS_DIR}/lib/io/printk.c
+SIOO		:= ${THIS_DIR}/build/lib/obj/printk.o
+PICS		:= ${THIS_DIR}/devices/cpu/irq.c
+PICO		:= ${THIS_DIR}/build/devices/cpu/irq.o
 
 ASMS		:= ${THIS_DIR}/inc/asm/interrupt.S
-ASMO		:= ${THIS_DIR}/build/kernel/interrupt.o
-
-# ASMO		+= ${THIS_DIR}/build/kernel/interrupt.o
-# ASMO		+= ${THIS_DIR}/build/kernel/irq.o
-
+ASMO		:= ${THIS_DIR}/build/kernel/obj/interrupt.o
 CPUS		:= ${THIS_DIR}/inc/asm/irq.S
-CPUO		:= ${THIS_DIR}/build/kernel/irq.o
+CPUO		:= ${THIS_DIR}/build/kernel/obj/irq.o
+
+COLOR_INFO	:= \e[1;32m
+COLOR_ERR	:= \e[1;31m
+COLOR_WARN	:= \e[1;33m
+COLOR_RESET := $<\e[0m
 
 all: asmo srco kernelo link
 
 kernelo:
-	@echo "[   ELF   ]    Proparing kerenl (Object file)..."
+	@echo "${COLOR_INFO}[   OBJ   ]${COLOR_RESET}    Proparing kerenl (Object file)..."
 	@mkdir -p ../build/kernel/obj
-	@${CC} ${HEADER} -ffreestanding -c ${KernelC} -o ${KernelO} -masm=intel
-	@echo "[   MSG   ]    Done!"
+	@if ${CC} ${HEADER} -ffreestanding -c ${KernelC} -o ${KernelO} -masm=intel; \
+		then echo "${COLOR_INFO}[   MSG   ]${COLOR_RESET}    Done!"; \
+	else \
+		echo "${COLOR_ERR}[   ERR   ]${COLOR_RESET}    Failed!"; \
+	fi
 
 srco:
-	@echo "[   ELF   ]    Proparing source (Object file)..."
+	@echo "${COLOR_INFO}[   OBJ   ]${COLOR_RESET}    Proparing source (Object file)..."
 	@mkdir -p ../build/lib/obj
-	@${CC} ${HEADER} -ffreestanding -c ${SRCS} -o ${SRCO} -masm=intel
-	@${CC} ${HEADER} -ffreestanding -c ${THIS_DIR}/lib/io/printk.c -o ${THIS_DIR}/build/lib/obj/printk.o -masm=intel
-	@echo "[   MSG   ]    Done!"
+	@mkdir -p ../build/devices/cpu
+	@if ${CC} ${HEADER} -ffreestanding -c ${SRCS} -o ${SRCO} -masm=intel && \
+	${CC} ${HEADER} -ffreestanding -c ${SIOS} -o ${SIOO} -masm=intel && \
+	${CC} ${HEADER} -ffreestanding -c ${PICS} -o ${PICO} -masm=intel; \
+		then echo "${COLOR_INFO}[   MSG   ]${COLOR_RESET}    Done!"; \
+	else \
+		echo "${COLOR_ERR}[   ERR   ]${COLOR_RESET}    Failed!"; \
+	fi
 
 asmo:
-	@echo "[   ELF   ]    Proparing source files (Asm file)..."
+	@echo "${COLOR_INFO}[   OBJ   ]${COLOR_RESET}    Proparing source files (Asm file)..."
 	@mkdir -p ../build/kernel/obj
-	@${AS} -felf ${ASMS} -o ${ASMO}
-	@${AS} -felf ${CPUS} -o ${CPUO}
-	@echo "[   MSG   ]    Done!"
+	@if ${AS} -felf ${ASMS} -o ${ASMO} && \
+	${AS} -felf ${CPUS} -o ${CPUO}; \
+		then echo "${COLOR_INFO}[   MSG   ]${COLOR_RESET}    Done!"; \
+	else \
+		echo "${COLOR_ERR}[   ERR   ]${COLOR_RESET}    Failed!"; \
+	fi
 
 link:
-	@echo "[   LNK   ]    Linking kerenl ..."
+	@echo "${COLOR_INFO}[   LNK   ]${COLOR_RESET}    Linking kerenl ..."
 	@mkdir -p ../build/kernel/bin
-	@${LD} -o ${KernelB} -Ttext 0x1000 ${Stage2O} ${KernelO} ${SRCO} ${ASMO} ${CPUO} --oformat binary
-	@echo "[   MSG   ]    Done!"
+	@if ${LD} -o ${KernelB} -Ttext 0x1000 ${Stage2O} ${KernelO} ${SRCO} ${ASMO} ${SIOO} ${PICO} ${CPUO} --oformat binary; \
+		then echo "${COLOR_INFO}[   MSG   ]${COLOR_RESET}    Done!"; \
+	else \
+		echo "${COLOR_ERR}[   ERR   ]${COLOR_RESET}    Failed!"; \
+	fi
 
 clean:
-	@echo "[   CLN   ]    Cleaning kerenl ..."
-	@rm -f ${KernelO}
-	@rm -f ${KernelB}
-	@echo "[   MSG   ]    Done!"
+	@echo "${COLOR_INFO}[   CLN   ]${COLOR_RESET}    Cleaning kerenl ..."
+	@if rm -f ${KernelO} && \
+	rm -f ${KernelB}; \
+		then echo "${COLOR_INFO}[   MSG   ]${COLOR_RESET}    Done!"; \
+	else \
+		echo "${COLOR_ERR}[   ERR   ]${COLOR_RESET}    Failed!"; \
+	fi

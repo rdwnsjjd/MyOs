@@ -37,7 +37,7 @@ Void __tty_set_color(
 
 
 // Void __enable_cur() {
-//     out_bin(0x3D4, 0x0A);
+//     outb(0x3D4, 0x0A);
 
 // }
 
@@ -46,41 +46,44 @@ UInt16 __get_cur() {
 
     UInt16 pos = 0;
 
-    out_bin(0x3D4, 0x0F);
-    pos |= in_bin(0x3D5);
+    outb(0x3D4, 0x0F);
+    pos |= inb(0x3D5);
 
-    out_bin(0x3D4, 0x0E);
-    pos |= ((UInt16)in_bin(0x3D5)) << 8;
+    outb(0x3D4, 0x0E);
+    pos |= ((UInt16)inb(0x3D5)) << 8;
 
     return pos;
 }
 
 
-Void __set_cur(UInt16 pos) {
+Int16 __set_cur(UInt16 pos) {
 
-    out_bin(0x3D4, 0x0E);
-    out_bin(0x3D5, (UInt8) ((pos >> 8) & 0xFF));
+    outb(0x3D4, 0x0E);
+    outb(0x3D5, (UInt8) ((pos >> 8) & 0xFF));
 
-    out_bin(0x3D4, 0x0F);
-    out_bin(0x3D5, (UInt8) (pos & 0xFF));
+    outb(0x3D4, 0x0F);
+    outb(0x3D5, (UInt8) (pos & 0xFF));
+
+    return pos;
 }
 
-// Void __tty_scroll() {
+Void __tty_scroll() {
 
-//     tty[0].ascii = tty[80].ascii;
-//     terminal->row--;
+    VgaChar* tty = (VgaChar*)VIDEO_MEM;
+
+    tty[0].ascii = tty[80].ascii;
     
-//     for (Size y = 0; y < VGA_HEIGHT; y++) {
+    for (Size y = 0; y < VGA_HEIGHT; y++) {
 
-// 		for (Size x = 0; x < VGA_WIDTH; x++) {
+		for (Size x = 0; x < VGA_WIDTH; x++) {
 
-//             if (y == VGA_HEIGHT - 1) {
-//                 terminal->buf[(y) * VGA_WIDTH + x].ascii = ' ';
-//             }
-// 			terminal->buf[(y) * VGA_WIDTH + x].ascii = terminal->buf[(y + 1) * VGA_WIDTH + x].ascii;
-// 		}
-// 	}
-// }
+            if (y == VGA_HEIGHT - 1) {
+                tty[(y) * VGA_WIDTH + x].ascii = ' ';
+            }
+			tty[(y) * VGA_WIDTH + x].ascii = tty[(y + 1) * VGA_WIDTH + x].ascii;
+		}
+	}
+}
 
 
 Void tty_init(
@@ -119,9 +122,10 @@ Void tty_init(
 }
 
 #define GO_NEXT_LINE(cur_, col_)    __set_cur(81)
+#define END_OF_SCREEN               cur == 80 * 25
 
 
-Void __tty_putc(
+Int32 __tty_putc(
     Char c,
     Size idx
 ) {
@@ -130,32 +134,10 @@ Void __tty_putc(
     Size row = idx / 80;
     Size col = (idx % 80) * 80;
 
-	// if (++col == VGA_WIDTH) {
-	// 	col = 0;
-    //     row++;
-		
-    //     if (row == VGA_HEIGHT){
-    //         // __tty_scroll(terminal);
-    //     }
-	// }
-    // else if (c == 0xD) {
-    //     col = 0;
-    //     return;
-    // }
-    // else if (c == '\b') {
-    //     col = col - 2;
-    //     return;
-    // }
-    // else if (c == '\t') {
-    //     col = col + 4;
-    //     return;
-    // }
-    // else{
-        tty[idx].ascii = c;
-        // tty[idx].attr  = 0x1f;
-    // }
-
+    tty[idx].ascii = c;
+    return -1;
 }
+
 
 
 Void tty_print(
@@ -164,7 +146,15 @@ Void tty_print(
     Bytes  stemp = str;
     UInt16 cur   = (UInt16)__get_cur();
 
+    
     for (; *stemp != '\000'; stemp++) {
+
+        if (END_OF_SCREEN) {
+            cur = __set_cur(80 * 24);
+            __tty_scroll();
+            __tty_putc(*stemp, cur++);
+            continue;
+        }
 
         if (*stemp == 0xA || *stemp == '\n') {
 
@@ -184,7 +174,10 @@ Void tty_print(
             continue;
         }
 
-        __tty_putc(*stemp, cur++);
+        if (__tty_putc(*stemp, cur++) != -1) {
+            // __tty_scroll();
+        }
+        
     }
     
     __set_cur(cur);

@@ -2,8 +2,8 @@
   [GLOBAL isr%1]        ; %1 accesses the first parameter.
   isr%1:
     cli
-    push byte 0
-    push byte %1
+    push dword 0
+    push dword %1
     jmp isr_common_stub
 %endmacro
 
@@ -11,7 +11,7 @@
   [GLOBAL isr%1]
   isr%1:
     cli
-    push byte %1
+    push dword %1
     jmp isr_common_stub
 %endmacro
 
@@ -55,30 +55,49 @@ ISR_NOERRCODE 31
 ; up for kernel mode segments, calls the C-level fault handler,
 ; and finally restores the stack frame.
 isr_common_stub:
-   pusha                    ; Pushes edi,esi,ebp,esp,ebx,edx,ecx,eax
 
-   mov ax, ds               ; Lower 16-bits of eax = ds.
-   push eax                 ; save the data segment descriptor
+  pusha ; Pushes edi,esi,ebp,esp,ebx,edx,ecx,eax
 
-   mov ax, 0x10  ; load the kernel data segment descriptor
-   mov ds, ax
+	mov ax, ds ; Lower 16-bits of eax = ds.
+	push eax ; save the data segment descriptor
+
+	mov ax, 0x10  ; kernel data segment descriptor
+	mov ds, ax
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
+
+
+  cld ; C code following the sysV ABI requires DF to be clear on function entry
+	call isr_handler
+	
+  pop eax
+
+	mov ds, ax
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
+
+	popa
+
+	add esp, 8 ; Cleans up the pushed error code and pushed ISR number
+	iret 
+
+
+
+
+[GLOBAL gdt_flush]    ; Allows the C code to call gdt_flush().
+
+gdt_flush:
+   mov eax, [esp+4]  ; Get the pointer to the GDT, passed as a parameter.
+   lgdt [eax]        ; Load the new GDT pointer
+
+   mov ax, 0x10      ; 0x10 is the offset in the GDT to our data segment
+   mov ds, ax        ; Load all data segment selectors
    mov es, ax
    mov fs, ax
    mov gs, ax
-
-;    mov [ebp - 4], edx
-
-   call isr_handler
-
-;    mov edx, [ebp - 4]
-
-   pop eax        ; reload the original data segment descriptor
-   mov ds, ax
-   mov es, ax
-   mov fs, ax
-   mov gs, ax
-
-   popa                     ; Pops edi,esi,ebp...
-   add esp, 8     ; Cleans up the pushed error code and pushed ISR number
-   sti
-   iret 
+   mov ss, ax
+   jmp 0x08:.flush   ; 0x08 is the offset to our code segment: Far jump!
+.flush:
+   ret
