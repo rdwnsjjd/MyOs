@@ -20,6 +20,7 @@
 #endif
 
 #include <cpu/gdt.h>
+#include <cpu/cpu.h>
 
 
 Void main() {
@@ -31,9 +32,11 @@ Void main() {
 
     __asm__ volatile ("int 33");
 
-    // int c = 13 / 0;  
-    tty_print("Hello!\n");
-    tty_print("Welcome to my Kernel!\n");
+    // static char s[16] = "BogusProces!";
+	// cpuid_string(0, (int*)(s));
+    // tty_print(s);
+
+    tty_print("HELLO!\n");
 
     // keyboard_init();
 }

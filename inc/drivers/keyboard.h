@@ -37,7 +37,7 @@
 //     if (scancode > SC_MAX) return;
 //     if (scancode == BACKSPACE) {
 //         backspace(key_buffer);
-//         // kprint_backspace();
+//         // tty_print_backspace();
 //     } else if (scancode == ENTER) {
 //         tty_print("\n");
 //         // user_input(key_buffer); /* kernel-controlled function */

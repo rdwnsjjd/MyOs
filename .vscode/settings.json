@@ -5,6 +5,7 @@
         "string.h": "c",
         "gdt.h": "c",
         "irqs.h": "c",
-        "idt.h": "c"
+        "idt.h": "c",
+        "cpuid.h": "c"
     }
 }
