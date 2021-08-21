@@ -14,3 +14,9 @@
 
 # MyOs
 my os practice from scratch
+
+### How to build and run
+simply:
+`
+cd MyOs && make
+`
