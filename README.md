@@ -8,5 +8,7 @@
        src="https://img.shields.io/coverity/scan/23601.svg"/>
 </a>
 
+![Reddit User Karma](https://img.shields.io/reddit/user-karma/combined/rdwnsjjd?style=social)
+
 # MyOs
 my os practice from scratch
