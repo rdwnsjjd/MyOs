@@ -1,0 +1,2 @@
+devices:
+		@cd cpu && make

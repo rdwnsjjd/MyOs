@@ -16,17 +16,13 @@ HEADER 		:= -I${THIS_DIR}/inc/
 HEADER 		+= -I${THIS_DIR}/lib/
 HEADER 		+= -I${THIS_DIR}/inc/libk
 
-SRCS		:= ${THIS_DIR}/lib/kernel/tty.c
-SRCO		:= ${THIS_DIR}/build/lib/obj/tty.o
-SIOS		:= ${THIS_DIR}/lib/io/printk.c
-SIOO		:= ${THIS_DIR}/build/lib/obj/printk.o
 PICS		:= ${THIS_DIR}/devices/cpu/irq.c
 PICO		:= ${THIS_DIR}/build/devices/cpu/irq.o
 
-ASMS		:= ${THIS_DIR}/inc/asm/interrupt.S
-ASMO		:= ${THIS_DIR}/build/kernel/obj/interrupt.o
-CPUS		:= ${THIS_DIR}/inc/asm/irq.S
-CPUO		:= ${THIS_DIR}/build/kernel/obj/irq.o
+ASMO		:= ${THIS_DIR}/build/kernel/obj/segment.o
+
+LIBO		:= ${THIS_DIR}/build/lib/obj/printk.o
+LIBO		+= ${THIS_DIR}/build/lib/obj/tty.o
 
 COLOR_INFO	:= \e[1;32m
 COLOR_ERR	:= \e[1;31m
@@ -44,32 +40,21 @@ kernelo:
 		echo "${COLOR_ERR}[   ERR   ]${COLOR_RESET}    Failed!"; \
 	fi
 
-srco:
-	@echo "${COLOR_INFO}[   OBJ   ]${COLOR_RESET}    Proparing source (Object file)..."
-	@mkdir -p ../build/lib/obj
-	@mkdir -p ../build/devices/cpu
-	@if ${CC} ${HEADER} -ffreestanding -c ${SRCS} -o ${SRCO} -masm=intel && \
-	${CC} ${HEADER} -ffreestanding -c ${SIOS} -o ${SIOO} -masm=intel && \
-	${CC} ${HEADER} -ffreestanding -c ${PICS} -o ${PICO} -masm=intel; \
-		then echo "${COLOR_INFO}[   MSG   ]${COLOR_RESET}    Done!"; \
-	else \
-		echo "${COLOR_ERR}[   ERR   ]${COLOR_RESET}    Failed!"; \
-	fi
+srco: lib devices
+
+devices:
+	@cd ../devices && make
+
+lib:
+	@cd ../lib && make 
 
 asmo:
-	@echo "${COLOR_INFO}[   OBJ   ]${COLOR_RESET}    Proparing source files (Asm file)..."
-	@mkdir -p ../build/kernel/obj
-	@if ${AS} -felf ${ASMS} -o ${ASMO} && \
-	${AS} -felf ${CPUS} -o ${CPUO}; \
-		then echo "${COLOR_INFO}[   MSG   ]${COLOR_RESET}    Done!"; \
-	else \
-		echo "${COLOR_ERR}[   ERR   ]${COLOR_RESET}    Failed!"; \
-	fi
+	@cd ../inc/asm && make
 
 link:
 	@echo "${COLOR_INFO}[   LNK   ]${COLOR_RESET}    Linking kerenl ..."
 	@mkdir -p ../build/kernel/bin
-	@if ${LD} -o ${KernelB} -Ttext 0x1000 ${Stage2O} ${KernelO} ${SRCO} ${ASMO} ${SIOO} ${PICO} ${CPUO} --oformat binary; \
+	@if ${LD} -o ${KernelB} -Ttext 0x1000 ${Stage2O} ${KernelO} ${ASMO} ${LIBO} ${PICO} --oformat binary; \
 		then echo "${COLOR_INFO}[   MSG   ]${COLOR_RESET}    Done!"; \
 	else \
 		echo "${COLOR_ERR}[   ERR   ]${COLOR_RESET}    Failed!"; \

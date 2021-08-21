@@ -4,6 +4,7 @@
         "basic_defs.h": "c",
         "string.h": "c",
         "gdt.h": "c",
-        "irqs.h": "c"
+        "irqs.h": "c",
+        "idt.h": "c"
     }
 }

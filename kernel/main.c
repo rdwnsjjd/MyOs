@@ -23,16 +23,12 @@
 
 
 Void main() {
-    tty_init(VGA_WHITE, VGA_BLUE);
+    tty_init(VGA_LIGHT_GREY, VGA_BLUE);
     // panic("Paniced!");  
 
-    idt_init();
-    __asm__ volatile ("int 18");
-
     gdt_init();
+    idt_init();
 
-    // idt_init();
-    __asm__ volatile ("int 38");
     __asm__ volatile ("int 33");
 
     // int c = 13 / 0;  

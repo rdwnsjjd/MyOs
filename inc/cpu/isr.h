@@ -5,7 +5,7 @@
 #include <basic_types.h>
 #include <kernel/tty.h>
 #include <cpu/cpu.h>
-// #include <asm/intrrupts.S>
+#include <kernel/panic.h>
 
 extern void isr0();
 extern void isr1();

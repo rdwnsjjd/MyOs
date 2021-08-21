@@ -5,7 +5,7 @@
 #include <basic_types.h>
 #include <kernel/tty.h>
 #include <cpu/irqs.h>
-#include <cpu/interrupts.h>
+#include <cpu/isr.h>
 #include <drivers/ports.h>
 
 typedef struct {
