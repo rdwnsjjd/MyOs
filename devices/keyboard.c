@@ -99,7 +99,7 @@ IrsCall keyboard_callback() {
         // tty_print(str);
         // tty_print("\n");
         if (ctrl_down && code == 18) {
-            tty_print("\n\nTurning off cpu... Bye!\n");
+            tty_print("\n\n> Turning off the CPU... Bye!\n");
             die();
         }
 

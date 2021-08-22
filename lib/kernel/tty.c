@@ -187,7 +187,6 @@ Void tty_print(
 
         if (*stemp == 0xA || *stemp == '\n') {
 
-            // prev_line_cur[cur / 80] = cur;
             __tty_putc(' ', cur, RESET);
             cur += 80 - (cur % 80);
             continue;
@@ -197,7 +196,6 @@ Void tty_print(
 
             __tty_putc(' ', cur, RESET);
             cur -= (cur % 80);
-            __tty_putc(' ', cur, SET);
             continue;
         }
 
@@ -225,6 +223,7 @@ Void tty_print(
             continue;
         }
 
+        __tty_putc(' ', cur, RESET);
         __tty_putc(*stemp, cur++, NONE);
         
     }

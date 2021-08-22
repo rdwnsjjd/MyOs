@@ -34,7 +34,7 @@ Void main() {
 
     tty_print("MyOs Kernel\n");
     tty_print("Copyright (C) 2021 Redwan. All rights reserved.\n");
-    tty_print("> ");
+    tty_print("\n> ");
         
 
     return;
