@@ -113,8 +113,28 @@ __INLINE__ Size atoi(
 
 
 Bytes itoa(
-    UInt32 num
+    Size num,
+    Bytes  str
 ) {
-    tty_print("Func `itoa` not implimented yet!");
+    Size len = 0;
+    Size tmp = num;
+
+    for (; tmp >= 1; len++) {
+        tmp /= 10;
+    }
+
+    UInt32 digit      = 0;
+    UInt32 last_digit = 0;
+
+    for (Size idx = len; idx > 0; idx--) {
+        tmp = (num / pow(10, idx - 1));
+        digit = tmp - last_digit;
+        last_digit = tmp * 10;
+
+        Char character = digit + 0x30;
+        strncat(str, &character, 1);
+    }
+    
+    return;
 }
 # endif // __STRING_H

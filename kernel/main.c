@@ -7,6 +7,8 @@
 #include <kernel/panic.h>
 
 #include <cpu/idt.h>
+#include <cpu/gdt.h>
+#include <cpu/cpu.h>
 
 #include <drivers/keyboard.h>
 
@@ -19,24 +21,21 @@
 #warning "This tutorial needs to be compiled with a ix86-elf compiler"
 #endif
 
-#include <cpu/gdt.h>
-#include <cpu/cpu.h>
-
 
 Void main() {
-    tty_init(VGA_LIGHT_GREY, VGA_BLUE);
-    // panic("Paniced!");  
+    tty_init(VGA_WHITE, VGA_BLUE);
 
     gdt_init();
     idt_init();
 
-    __asm__ volatile ("int 33");
-
-    // static char s[16] = "BogusProces!";
-	// cpuid_string(0, (int*)(s));
-    // tty_print(s);
-
-    tty_print("HELLO!\n");
-
+    keyboard_init();
+    // keyboard_disable();
     // keyboard_init();
+
+    tty_print("MyOs Kernel\n");
+    tty_print("Copyright (C) 2021 Redwan. All rights reserved.\n");
+    tty_print("> ");
+        
+
+    return;
 }

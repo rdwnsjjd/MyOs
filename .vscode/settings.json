@@ -6,6 +6,10 @@
         "gdt.h": "c",
         "irqs.h": "c",
         "idt.h": "c",
-        "cpuid.h": "c"
+        "cpuid.h": "c",
+        "stdio.h": "c",
+        "tty.h": "c",
+        "keyboard.h": "c",
+        "system.h": "c"
     }
 }

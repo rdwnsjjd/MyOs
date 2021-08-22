@@ -6,6 +6,26 @@
 #include <kernel/tty.h>
 #include <cpu/cpu.h>
 
+typedef enum {
+    TIMER = 32,
+    KEYBOARD,
+    PIC2,
+    COM2,
+    COM1,
+    LPT2,
+    FLOPPY,
+    LPT1,
+    CLOCK,
+    GIO1,
+    GIO2,
+    GIO3,
+    GIO4,
+    COPROCESSOR,
+    IDEBUS1,
+    IDEBUS2
+}
+IrqType;
+
 extern void irq0();
 extern void irq1();
 extern void irq2();
@@ -22,6 +42,12 @@ extern void irq12();
 extern void irq13();
 extern void irq14();
 extern void irq15();
+
+typedef void (*IrsCall)();
+
+Void handler_killer(IrqType type, IrsCall handler);
+
+Void handler_initer(IrqType type, IrsCall handler);
 
 Void irq_handler(UInt32 eax, Cpu cpu, UInt32 irq);
 

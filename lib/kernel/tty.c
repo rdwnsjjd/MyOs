@@ -2,6 +2,13 @@
 
 #define END_OF_TERMINAL_BUF     (VGA_HEIGHT == terminal_row) && (VGA_WIDTH == terminal_col)
 
+typedef enum {
+    NONE  = 0,
+    RESET = 1,
+    SET = 2
+}
+TtyCurT;
+
 typedef struct {
     UInt8               ascii;
     UInt8               attr ;
@@ -67,7 +74,12 @@ Int16 __set_cur(UInt16 pos) {
     return pos;
 }
 
-Void __tty_scroll() {
+
+// Size     prev_line_cur[25] = {0};
+// VgaChar* terminal_buffer[2097152] = {0};
+
+
+Void __tty_scroll_down() {
 
     VgaChar* tty = (VgaChar*)VIDEO_MEM;
 
@@ -81,8 +93,14 @@ Void __tty_scroll() {
                 tty[(y) * VGA_WIDTH + x].ascii = ' ';
             }
 			tty[(y) * VGA_WIDTH + x].ascii = tty[(y + 1) * VGA_WIDTH + x].ascii;
+            // prev_line_cur[(y) * VGA_WIDTH + x] = prev_line_cur[(y + 1) * VGA_WIDTH + x];
 		}
 	}
+}
+
+
+Void __tty_scroll_up() {
+    // TODO
 }
 
 
@@ -126,19 +144,30 @@ Void tty_init(
 
 
 Int32 __tty_putc(
-    Char c,
-    Size idx
+    Char    c,
+    Size    idx,
+    TtyCurT cursor
 ) {
     VgaChar* tty = (VgaChar*)VIDEO_MEM;
     
     Size row = idx / 80;
     Size col = (idx % 80) * 80;
 
-    tty[idx].ascii = c;
+    if (cursor == NONE) {
+        tty[idx].ascii = c;
+    }
+    else if (cursor == SET) {
+        tty[idx].attr  = __vga_entry_color(VGA_BLUE, VGA_WHITE);
+    } 
+    else if (cursor == RESET) {
+        tty[idx].attr  = __vga_entry_color(VGA_WHITE, VGA_BLUE);
+    }
+    
     return -1;
 }
 
-
+UInt16 last_char_cur = 0;
+Bool   is_on_end     = TRUE;
 
 Void tty_print(
     Bytes str
@@ -151,34 +180,117 @@ Void tty_print(
 
         if (END_OF_SCREEN) {
             cur = __set_cur(80 * 24);
-            __tty_scroll();
-            __tty_putc(*stemp, cur++);
+            __tty_scroll_down();
+            __tty_putc(*stemp, cur++, NONE);
             continue;
         }
 
         if (*stemp == 0xA || *stemp == '\n') {
 
+            // prev_line_cur[cur / 80] = cur;
+            __tty_putc(' ', cur, RESET);
             cur += 80 - (cur % 80);
             continue;
         }
 
         else if (*stemp == 0xD || *stemp == '\r') {
 
+            __tty_putc(' ', cur, RESET);
             cur -= (cur % 80);
+            __tty_putc(' ', cur, SET);
             continue;
         }
 
         else if (*stemp == '\t') {
 
+            __tty_putc(' ', cur, RESET);
             cur += 4;
             continue;
         }
 
-        if (__tty_putc(*stemp, cur++) != -1) {
-            // __tty_scroll();
+        else if (*stemp == '\b') {
+
+            if (cur == 0) {
+                continue;
+            }
+            else {
+                cur -= 1;
+            }
+
+            if (is_on_end || cur > last_char_cur) {
+                last_char_cur = cur;
+            }
+            
+            __tty_putc(' ', cur, NONE);
+            continue;
         }
+
+        __tty_putc(*stemp, cur++, NONE);
         
     }
-    
+
+    if (is_on_end || cur > last_char_cur) {
+        last_char_cur = cur;
+    }
     __set_cur(cur);
+
+    __tty_putc(*stemp, cur - 1, RESET);
+    __tty_putc(*stemp, cur + 1, RESET);
+    __tty_putc(*stemp, cur, SET);
+    
 }
+
+
+Void go_left() {
+    UInt16 cur = (UInt16)__get_cur();
+    is_on_end = FALSE;
+
+    if (cur == 0) {
+        return;
+    }
+
+    __set_cur(--cur);
+
+    __tty_putc(' ', cur - 1, RESET);
+    __tty_putc(' ', cur + 1, RESET);
+    __tty_putc(' ', cur, SET);
+}
+
+
+Void go_right() {
+    UInt16 cur = (UInt16)__get_cur();
+    is_on_end = FALSE;
+
+    if (cur == last_char_cur) {
+        return;
+    }
+
+    __set_cur(++cur);
+    __tty_putc(' ', cur - 1, RESET);
+    __tty_putc(' ', cur + 1, RESET);
+    __tty_putc(' ', cur, SET);
+}
+
+
+Void go_home() {
+    UInt16 cur = (UInt16)__get_cur();
+
+    __tty_putc(' ', cur, RESET);
+
+    __set_cur((cur / 80) * 80);
+    is_on_end = FALSE;
+
+    __tty_putc(' ', (cur / 80) * 80, SET);
+}
+
+
+Void go_end() {
+    UInt16 cur = (UInt16)__get_cur();
+    __tty_putc(' ', cur, RESET);
+
+    __set_cur(last_char_cur);
+    is_on_end = TRUE;
+
+    __tty_putc(' ', last_char_cur, SET);
+}
+

@@ -16,8 +16,8 @@ HEADER 		:= -I${THIS_DIR}/inc/
 HEADER 		+= -I${THIS_DIR}/lib/
 HEADER 		+= -I${THIS_DIR}/inc/libk
 
-PICS		:= ${THIS_DIR}/devices/cpu/irq.c
 PICO		:= ${THIS_DIR}/build/devices/cpu/irq.o
+PICO		+= ${THIS_DIR}/build/devices/keyboard.o
 
 ASMO		:= ${THIS_DIR}/build/kernel/obj/segment.o
 

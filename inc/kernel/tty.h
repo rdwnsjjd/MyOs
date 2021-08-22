@@ -36,7 +36,20 @@ Void tty_init(
     VideoMemColor bg
 );
 
+Void go_left();
+
+Void go_right();
+
+Void go_end();
+
+Void go_home();
 
 Void tty_print(Bytes str);
+
+
+__INLINE__ input(Bytes str) {
+	keyboard_init();
+	
+}
 
 #endif // __TTY_H

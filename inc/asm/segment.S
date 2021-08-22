@@ -68,10 +68,10 @@ isr_common_stub:
 	mov gs, ax
 
 
-  cld ; C code following the sysV ABI requires DF to be clear on function entry
+        cld ; C code following the sysV ABI requires DF to be clear on function entry
 	call isr_handler
 	
-  pop eax
+        pop eax
 
 	mov ds, ax
 	mov es, ax
@@ -81,28 +81,8 @@ isr_common_stub:
 	popa
 
 	add esp, 8 ; Cleans up the pushed error code and pushed ISR number
+        sti
 	iret 
-
-
-
-
-[GLOBAL gdt_flush]    ; Allows the C code to call gdt_flush().
-
-gdt_flush:
-   mov eax, [esp+4]  ; Get the pointer to the GDT, passed as a parameter.
-   lgdt [eax]        ; Load the new GDT pointer
-
-   mov ax, 0x10      ; 0x10 is the offset in the GDT to our data segment
-   mov ds, ax        ; Load all data segment selectors
-   mov es, ax
-   mov fs, ax
-   mov gs, ax
-   mov ss, ax
-   jmp 0x08:.flush   ; 0x08 is the offset to our code segment: Far jump!
-.flush:
-   ret
-
-
 
 
 
@@ -161,4 +141,22 @@ irq_common_stub:
                         popa
 
                         add esp, 8
+                        sti
                         iret 
+
+
+[GLOBAL gdt_flush]    ; Allows the C code to call gdt_flush().
+
+gdt_flush:
+   mov eax, [esp+4]  ; Get the pointer to the GDT, passed as a parameter.
+   lgdt [eax]        ; Load the new GDT pointer
+
+   mov ax, 0x10      ; 0x10 is the offset in the GDT to our data segment
+   mov ds, ax        ; Load all data segment selectors
+   mov es, ax
+   mov fs, ax
+   mov gs, ax
+   mov ss, ax
+   jmp 0x08:.flush   ; 0x08 is the offset to our code segment: Far jump!
+.flush:
+   ret

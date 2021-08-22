@@ -1,7 +1,7 @@
 [BITS   32]
 [EXTERN main]
 
-
+STI
 CALL            main
 
 ;                 global  gdt_install
@@ -28,7 +28,7 @@ CALL            main
 
 
 HANG:
-                CLI
+                ; CLI
         HLOOP:  
                 HLT
                 JMP     HLOOP
