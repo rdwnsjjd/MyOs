@@ -9,29 +9,26 @@
 
 #define PIC_ACK             0x20
 
+Void* irq_callbacks[256] = {0};
+
 
 Bool pic_acknowledge(
     UInt32 int_num
 ) {
-
     if (int_num < PIC_START_INT || int_num > PIC_END_INT) {
         tty_print("None!\n");
         return FALSE;
     }
-    
     else if (int_num < PIC2_START_INT) {
-        // tty_print("PIC1!\n");
         outb(PIC1_PORT_A, PIC_ACK);
     }
     else {
-        // tty_print("PIC2!\n");
         outb(PIC2_PORT_A, PIC_ACK);
     }
     
     return TRUE;
 }
 
-Void* irq_callbacks[256] = {0};
 
 Void handler_initer(
     IrqType type,
@@ -51,7 +48,7 @@ Void handler_killer(
 
 Void irq_handler(
     UInt32 ebx, 
-    Cpu cpu, 
+    Cpu    cpu, 
     UInt32 int_num
 ) {
     if (!pic_acknowledge(int_num)) {
@@ -61,6 +58,7 @@ Void irq_handler(
     if (irq_callbacks[int_num] != 0) {
         IrsCall handler = irq_callbacks[int_num];
         handler();
+        return;
     }
     
     // tty_print("An irq received (IRQ handle not implimented yet!)\n");

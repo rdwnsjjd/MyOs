@@ -10,6 +10,7 @@
         "stdio.h": "c",
         "tty.h": "c",
         "keyboard.h": "c",
-        "system.h": "c"
+        "system.h": "c",
+        "basic_types.h": "c"
     }
 }

@@ -4,6 +4,8 @@
 #include <defs/basic_defs.h>
 #include <basic_types.h>
 #include <drivers/ports.h>
+#include <string.h>
+#include <sys/system.h>
 
 #define VIDEO_MEM       0xB8000
 #define VGA_WIDTH       80
@@ -47,9 +49,39 @@ Void go_home();
 Void tty_print(Bytes str);
 
 
-__INLINE__ input(Bytes str) {
-	keyboard_init();
-	
+__INLINE__ Void input(Bytes str) {
+
+	if (strcmp(str, "") == 0) {
+		return;
+	}
+	else if (strcmp(str, "reboot") == 0) {
+		tty_print("\n Rebooting...");
+		wait();
+		reboot();
+	}
+	else if (strcmp(str, "clear") == 0) {
+		tty_init(VGA_WHITE, VGA_BLUE);
+		tty_print("> ");
+	}
+	else if (strcmp(str, "help") == 0) {
+		tty_print("\nKernel shell commands:\n");
+		tty_print(" clear:			   Clearing screen\n");
+		tty_print(" reboot:			   Rebooting system\n");
+		tty_print(" yes:			   Types y forever\n");
+	}
+	else if (strcmp(str, "yes") == 0) {
+		loop {
+			tty_print("\ny");
+		}
+	}
+	else {
+		tty_print("\n");
+		tty_print(str);
+		tty_print(": ");
+		tty_print("Command not found. type `help` to see available commands.\n");
+	}
+
+	memset(str, '\0', 80);
 }
 
 #endif // __TTY_H

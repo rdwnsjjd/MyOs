@@ -6,7 +6,7 @@
 #include <basic_types.h>
 
 
-Double pow(UInt32 num, Size rep) {
+__INLINE__ Double pow(UInt32 num, Size rep) {
 
     Double res = 1;
     for (Size i = 0; i < rep; i++) {

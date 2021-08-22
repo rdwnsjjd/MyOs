@@ -7,8 +7,6 @@ LOAD_STAGE2:
 
                 MOV     DH, 0x30
                 MOV     DL, [DRIVE_NUM]
-                ; MOV     AX, 0x900                          ; Setting ES register to boot segment to use it inorder to 
-                ; MOV     ES, AX                                ; accessing it's content after loading data on it
                 MOV     BX, STAGE2_OFFSET                       ; This is logical address (= 0x10C00 physical)
                 CALL    DISK_IO
 

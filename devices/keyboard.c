@@ -36,9 +36,19 @@ Bytes shift_code[] = {
     "Keypad *", "LAlt", " "
 };
 
+Bytes commands[] = {
+    "help",
+    "reboot",
+    "clear",
+    "yes"
+};
+Size com_len = 4;
 
-Bool shift_down = FALSE;
-Bool ctrl_down  = FALSE;
+Bool shift_down      = FALSE;
+Bool ctrl_down       = FALSE;
+Char char_buffer[80] = {0};
+Size cb_len          = 0;
+
 
 IrsCall keyboard_callback() {
     
@@ -61,16 +71,41 @@ IrsCall keyboard_callback() {
         return;
     }
     else if (code == ENTER) {
+        input(char_buffer);
         tty_print("\n");
         tty_print("> ");
+        cb_len = 0;
         return;
     }
     else if (code == BACKSPACE) {
         tty_print("\b");
+
+        char_buffer[cb_len - 1] = '\0';
+        cb_len--;
+
         return;
     }
     else if (code == TAB) {
-        tty_print("\t");
+        
+        Size len       = strlen(char_buffer);
+        Size contained = 0;
+
+        for (Size icom = 0; icom < com_len; icom++) {
+            for (Size idx = 0; idx < len; idx++) {
+                
+                if (*char_buffer == *(commands[icom])) {
+                    contained++;
+                }
+            }
+            if (contained == len) {
+                tty_print(commands[icom] + len);
+                strcat(char_buffer, commands[icom] + len);
+                cb_len = strlen(commands[icom]);
+                contained = 0;
+                break;
+            }
+            
+        }
         return;
     }
     else if (code == LEFT) {
@@ -109,11 +144,22 @@ IrsCall keyboard_callback() {
             return;
         }
 
+        if (ctrl_down && code == 19) {
+            tty_print("\n> Rebooting...");
+            wait();
+            reboot();
+            return;
+        }
+
         if (shift_down) {
             tty_print(shift_code[code]);
+            strncat(char_buffer, shift_code[code], 1);
+            cb_len++;
         }
         else {
             tty_print(nshift_code[code]);
+            strncat(char_buffer, nshift_code[code], 1);
+            cb_len++;
         }
     }
 }

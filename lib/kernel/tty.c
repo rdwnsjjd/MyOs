@@ -174,6 +174,7 @@ Void tty_print(
 ) {
     Bytes  stemp = str;
     UInt16 cur   = (UInt16)__get_cur();
+    VgaChar* tty = (VgaChar*)VIDEO_MEM;
 
     
     for (; *stemp != '\000'; stemp++) {
@@ -208,7 +209,12 @@ Void tty_print(
 
         else if (*stemp == '\b') {
 
-            if (cur == 0) {
+            if (
+                cur == 0 || 
+                (tty[cur - 2].ascii == '>' && 
+                tty[cur - 1].ascii == ' ' && 
+                ((cur - 2) % 80) == 0)
+            ) {
                 continue;
             }
             else {
@@ -241,10 +247,16 @@ Void tty_print(
 
 
 Void go_left() {
-    UInt16 cur = (UInt16)__get_cur();
-    is_on_end = FALSE;
+    VgaChar* tty = (VgaChar*)VIDEO_MEM;
+    UInt16   cur = (UInt16)__get_cur();
+    is_on_end    = FALSE;
 
-    if (cur == 0) {
+    if (
+        cur == 0 || 
+        (tty[cur - 2].ascii == '>' && 
+        tty[cur - 1].ascii == ' ' && 
+        ((cur - 2) % 80) == 0)
+    ) {
         return;
     }
 
@@ -272,14 +284,23 @@ Void go_right() {
 
 
 Void go_home() {
-    UInt16 cur = (UInt16)__get_cur();
+    VgaChar* tty = (VgaChar*)VIDEO_MEM;
+    UInt16   cur = (UInt16)__get_cur();
 
     __tty_putc(' ', cur, RESET);
+    cur = (cur / 80) * 80;
 
-    __set_cur((cur / 80) * 80);
+    if (
+        (tty[cur].ascii == '>' && 
+        tty[cur + 1].ascii == ' ' )
+    ) {
+        cur = cur + 2;
+    }
+
     is_on_end = FALSE;
-
-    __tty_putc(' ', (cur / 80) * 80, SET);
+    
+    __set_cur(cur);
+    __tty_putc(' ', cur, SET);
 }
 
 

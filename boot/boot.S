@@ -15,12 +15,6 @@ DISK_WRITE      EQU     0x03
 ENTRY:
                 MOV     [DRIVE_NUM], DL
 
-		; MOV 	AX, BOOT_SEG
-		; MOV     DS, AX
-                ; MOV     SS, AX
-                ; MOV     ES, AX
-
-
                 MOV     BP, STACK_TOP
                 MOV     SP, BP
 
@@ -30,24 +24,13 @@ ENTRY:
                 CALL    B_PRINT
 
                 ; CALL    B_INPUT
-
+                
                 CALL    LOAD_STAGE2
-                ; JMP     STAGE2_OFFSET
-
-                ; CALL    kmain
-
-                ; MOV     SI, A20_MSG
-                ; CALL    B_PRINT
-                ; CALL    CHECK_A20
 
                 MOV     SI, RM_MSG
                 CALL    B_PRINT
 
                 CALL    HIDE_CURSOR
-
-                ; CALL    SET_CURSOR
-
-                ; CALL    CLEAR_SCREEN
 
                 CLI
                 LGDT    [GDT_DESC]

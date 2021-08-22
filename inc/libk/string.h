@@ -1,5 +1,5 @@
-#ifndef __STRING_H
-#define __STRING_H
+#ifndef __STRING_H_
+#define __STRING_H_
 
 #include <defs/basic_defs.h>
 #include <basic_types.h>
@@ -90,6 +90,41 @@ __INLINE__ Bytes strncat(
 }
 
 
+__INLINE__ Size strcmp(
+    const Bytes str_1,
+    const Bytes str_2
+) {
+    Size ret   = 0;
+    Size len1  = strlen(str_1);
+    Size len2  = strlen(str_2);
+    Bytes cur1 = str_1;
+    Bytes cur2 = str_2;
+
+    if (len1 == len2) {
+
+        for (Size i = 0; i < len1; i++) {
+        
+            if (*(cur1) != *(cur2)) {
+                ret++;
+            }
+            // else if (*(cur1) < *(cur2)) {
+            //     ret--;
+            // }
+
+            cur1++;
+            cur2++;
+        }
+    }
+    else {
+        ret++;
+    }
+    
+    
+    
+    return ret;
+}
+
+
 __INLINE__ Size atoi(
     Bytes str
 ) {
@@ -112,7 +147,7 @@ __INLINE__ Size atoi(
 }
 
 
-Bytes itoa(
+__INLINE__ Bytes itoa(
     Size num,
     Bytes  str
 ) {
